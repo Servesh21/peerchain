@@ -26,13 +26,14 @@ import { useFadeIn } from '@/utils/animations';
 
 const Trade = () => {
   const [tradeType, setTradeType] = useState('buy');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState({
-    id: 'bitcoin',
-    name: 'Bitcoin',
-    symbol: 'BTC',
-    price: 43156.78,
-    change: 2.4,
-    color: '#F7931A'
+    id: 'ethereum',
+    name: 'Ethereum',
+    symbol: 'ETH',
+    price: 2897.32,
+    change: -0.8,
+    color: '#627EEA'
   });
   
   // Animation styles
@@ -66,22 +67,6 @@ const Trade = () => {
       price: 1.75,
       change: 1.2,
       color: '#2775CA'
-    },
-    {
-      id: 'tether',
-      name: 'Tether',
-      symbol: 'USDT',
-      price: 1.00,
-      change: 0.02,
-      color: '#50AF95'
-    },
-    {
-      id: 'binance',
-      name: 'Binance Coin',
-      symbol: 'BNB',
-      price: 386.94,
-      change: 3.2,
-      color: '#F3BA2F'
     }
   ];
   
@@ -209,17 +194,17 @@ const Trade = () => {
                   onValueChange={setTradeType} 
                   className="w-full"
                 >
-                  <TabsList className="grid grid-cols-2 w-full p-2 h-17">
+                  <TabsList className="grid grid-cols-2 w-full p-1.5 h-15">
                     <TabsTrigger 
                       value="buy" 
-                      className={`flex items-center justify-center py-6 text-lg font-medium ${tradeType === 'buy' ? 'text-green-500' : ''}`}
+                      className={`flex items-center justify-center py-3 text-lg font-medium ${tradeType === 'buy' ? 'text-green-500' : ''}`}
                     >
                       <ArrowDown className={`mr-2 h-5 w-5 ${tradeType === 'buy' ? 'text-green-500' : ''}`} />
                       Buy
                     </TabsTrigger>
                     <TabsTrigger 
                       value="sell" 
-                      className={`flex items-center justify-center py-6 text-lg font-medium ${tradeType === 'sell' ? 'text-red-500' : ''}`}
+                      className={`flex items-center justify-center py-3 text-lg font-medium ${tradeType === 'sell' ? 'text-red-500' : ''}`}
                     >
                       <ArrowUp className={`mr-2 h-5 w-5 ${tradeType === 'sell' ? 'text-red-500' : ''}`} />
                       Sell
@@ -236,6 +221,7 @@ const Trade = () => {
                 <div className="relative">
                   <button 
                     className="w-full flex items-center justify-between p-3 border border-input rounded-lg bg-transparent hover:bg-secondary/50 transition-colors text-left"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   >
                     <div className="flex items-center">
                       <div 
@@ -249,30 +235,35 @@ const Trade = () => {
                         <p className="text-xs text-muted-foreground">{selectedCurrency.symbol}</p>
                       </div>
                     </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
                   </button>
                   
-                  {/* Dropdown Menu (hidden by default) */}
-                  <div className="hidden absolute left-0 mt-1 w-full origin-top-left rounded-md bg-popover shadow-lg ring-1 ring-black ring-opacity-5 z-20 p-1">
-                    {currencies.map(currency => (
-                      <button
-                        key={currency.id}
-                        className="flex items-center w-full p-2 rounded-md text-left hover:bg-secondary transition-colors"
-                        onClick={() => setSelectedCurrency(currency)}
-                      >
-                        <div 
-                          className="h-6 w-6 rounded-full flex items-center justify-center mr-3 text-white text-xs font-bold"
-                          style={{ backgroundColor: currency.color }}
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute left-0 mt-1 w-full origin-top-left rounded-md bg-popover shadow-lg ring-1 ring-black ring-opacity-5 z-20 p-1">
+                      {currencies.map(currency => (
+                        <button
+                          key={currency.id}
+                          className="flex items-center w-full p-2 rounded-md text-left hover:bg-secondary transition-colors"
+                          onClick={() => {
+                            setSelectedCurrency(currency);
+                            setIsDropdownOpen(false);
+                          }}
                         >
-                          {currency.symbol.substring(0, 1)}
-                        </div>
-                        <div>
-                          <p className="font-medium">{currency.name}</p>
-                          <p className="text-xs text-muted-foreground">${currency.price.toLocaleString()}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                          <div 
+                            className="h-6 w-6 rounded-full flex items-center justify-center mr-3 text-white text-xs font-bold"
+                            style={{ backgroundColor: currency.color }}
+                          >
+                            {currency.symbol.substring(0, 1)}
+                          </div>
+                          <div>
+                            <p className="font-medium">{currency.name}</p>
+                            <p className="text-xs text-muted-foreground">${currency.price.toLocaleString()}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               
