@@ -5,6 +5,11 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  walletAddress: {
+    type: String,
+    unique: true,
+    sparse: true, // allows null/empty values for users without wallets
+  },
 });
 
 // Hash password before saving
