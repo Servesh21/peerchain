@@ -7,14 +7,14 @@ const blockchainController = require("../controllers/blockchainController");
 router.post(
   "/transaction",
   passport.authenticate("jwt", { session: false }),
-  blockchainController.sendTransaction
+  blockchainController.createTransaction
 );
 
 // GET /api/blockchain/history/:address - Fetch transaction history (protected)
 router.get(
   "/history/:address",
   passport.authenticate("jwt", { session: false }),
-  blockchainController.getTransactionHistory
+  blockchainController.getTransactionDetails
 );
 
 // GET /api/blockchain/balance/:address - Get wallet balance (protected)

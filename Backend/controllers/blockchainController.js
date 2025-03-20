@@ -1,6 +1,34 @@
 // blockchainRouteController.js
 
 const blockchainService = require("../services/blockchainService");
+const Web3 = require("web3");
+
+// Connect to your blockchain node (e.g., Ganache, Infura, Alchemy)
+// const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+// Replace URL with your blockchain provider (e.g., Infura RPC URL for Ethereum)
+
+// GET wallet balance controller
+const getBalance = async (req, res) => {
+  try {
+    const { address } = req.params;
+
+    if (!web3.utils.isAddress(address)) {
+      return res.status(400).json({ message: "Invalid wallet address" });
+    }
+
+    const balanceWei = await web3.eth.getBalance(address);
+    const balanceEther = web3.utils.fromWei(balanceWei, "ether");
+
+    return res.status(200).json({
+      address,
+      balance: balanceEther,
+      unit: "ETH",
+    });
+  } catch (error) {
+    console.error("Error fetching balance:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 /**
  * @desc Create a new blockchain transaction
@@ -58,4 +86,4 @@ const getTransactionDetails = async (req, res) => {
   }
 };
 
-module.exports = { createTransaction, getTransactionDetails };
+module.exports = { createTransaction, getTransactionDetails, getBalance };
