@@ -82,7 +82,7 @@ const Navbar = () => {
           <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
             <Wallet className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="font-display font-semibold text-xl">CryptoSwap</span>
+          <span className="font-display font-semibold text-xl">PeerChain</span>
         </Link>
         
         {/* Desktop Navigation */}
