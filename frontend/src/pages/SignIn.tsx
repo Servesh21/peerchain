@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -122,7 +123,22 @@ const SignIn = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      // Save token somewhere (context/localStorage)
+      // Save token to localStorage
+      localStorage.setItem("token", data.token);
+
+      // Link wallet after login if walletAddress exists
+      if (walletAddress) {
+        await fetch("http://localhost:5500/api/user/link-wallet", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${data.token}`,
+          },
+          body: JSON.stringify({ walletAddress }),
+        });
+      }
+
+      // Login context call
       login({
         id: data.user.id,
         name: data.user.name,
@@ -145,16 +161,26 @@ const SignIn = () => {
   };
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
+
+    if (!walletAddress) {
+      toast({
+        title: "Wallet Required",
+        description: "Please connect your MetaMask wallet before registering.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       const res = await fetch("http://localhost:5500/api/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: name, // Using 'name' as 'username'
+          username: name,
           email,
           password,
+          walletAddress, // Send wallet address to backend
         }),
       });
 
@@ -166,7 +192,7 @@ const SignIn = () => {
         description: "You can now log in.",
       });
 
-      setActiveTab("login"); // Switch to login tab after registration
+      setActiveTab("login");
     } catch (err: any) {
       toast({
         title: "Registration Failed",
@@ -279,6 +305,46 @@ const SignIn = () => {
                     </Button>
                   </div>
                 </form>
+
+                <div className="mt-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="flex items-center justify-center"
+                      onClick={connectMetaMask}
+                      disabled={isConnecting}
+                    >
+                      <Wallet className="mr-2 h-4 w-4" />
+                      {isConnecting
+                        ? "Connecting..."
+                        : walletAddress
+                        ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(
+                            -4
+                          )}`
+                        : "MetaMask"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="flex items-center justify-center"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      WalletConnect
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
 
               <TabsContent value="register">
@@ -397,6 +463,38 @@ const SignIn = () => {
                     </Button>
                   </div>
                 </form>
+
+                <div className="mt-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="flex items-center justify-center"
+                    >
+                      <Wallet className="mr-2 h-4 w-4" />
+                      MetaMask
+                    </Button>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="flex items-center justify-center"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      WalletConnect
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -406,4 +504,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignIn;
