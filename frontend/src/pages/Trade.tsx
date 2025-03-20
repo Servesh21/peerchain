@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -59,6 +58,14 @@ const Trade = () => {
       price: 2897.32,
       change: -0.8,
       color: '#627EEA'
+    },
+    {
+      id: 'erc20',
+      name: 'ERC20',
+      symbol: 'ERC',
+      price: 1.75,
+      change: 1.2,
+      color: '#2775CA'
     },
     {
       id: 'tether',
@@ -178,57 +185,43 @@ const Trade = () => {
         <div className="max-w-7xl mx-auto">
           {/* Page Header */}
           <div 
-            className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4"
+            className="flex flex-col items-center text-center mb-12"
             style={headerAnimation}
           >
             <div>
-              <h1 className="text-3xl font-display font-bold">P2P Trading</h1>
-              <p className="text-muted-foreground">Find the best offers to buy and sell cryptocurrencies</p>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" className="flex items-center">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh
-              </Button>
-              <Button className="flex items-center">
-                <Wallet className="mr-2 h-4 w-4" />
-                Create Offer
-              </Button>
+              <h1 className="text-4xl font-display font-bold mb-3">P2P Trading</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl">Find the best offers to buy and sell cryptocurrencies</p>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left column - Price Chart */}
-        
-            
-            {/* Right column - Trade Form */}
+          <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
+            {/* Trade Form */}
             <div 
-              className="bg-card border border-border rounded-xl p-6 shadow-subtle h-full"
+              className="bg-card border border-border rounded-xl p-8 shadow-subtle"
               style={formAnimation}
             >
-              <h2 className="text-xl font-display font-semibold mb-6">Start Trading</h2>
+              <h2 className="text-2xl font-display font-semibold mb-2 text-center">Start Trading</h2>
               
               {/* Buy/Sell Tabs */}
-              <div className="mb-6">
+              <div className="mb-8">
                 <Tabs 
                   value={tradeType} 
                   onValueChange={setTradeType} 
                   className="w-full"
                 >
-                  <TabsList className="grid grid-cols-2 w-full">
+                  <TabsList className="grid grid-cols-2 w-full p-2 h-17">
                     <TabsTrigger 
                       value="buy" 
-                      className={`flex items-center ${tradeType === 'buy' ? 'text-green-500' : ''}`}
+                      className={`flex items-center justify-center py-6 text-lg font-medium ${tradeType === 'buy' ? 'text-green-500' : ''}`}
                     >
-                      <ArrowDown className={`mr-2 h-4 w-4 ${tradeType === 'buy' ? 'text-green-500' : ''}`} />
+                      <ArrowDown className={`mr-2 h-5 w-5 ${tradeType === 'buy' ? 'text-green-500' : ''}`} />
                       Buy
                     </TabsTrigger>
                     <TabsTrigger 
                       value="sell" 
-                      className={`flex items-center ${tradeType === 'sell' ? 'text-red-500' : ''}`}
+                      className={`flex items-center justify-center py-6 text-lg font-medium ${tradeType === 'sell' ? 'text-red-500' : ''}`}
                     >
-                      <ArrowUp className={`mr-2 h-4 w-4 ${tradeType === 'sell' ? 'text-red-500' : ''}`} />
+                      <ArrowUp className={`mr-2 h-5 w-5 ${tradeType === 'sell' ? 'text-red-500' : ''}`} />
                       Sell
                     </TabsTrigger>
                   </TabsList>
