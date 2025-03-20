@@ -96,20 +96,6 @@ const Navbar = () => {
           <NavLink to="/dashboard" active={location.pathname === "/dashboard"}>
             Dashboard
           </NavLink>
-          
-          <div className="relative group">
-            <button className="px-4 py-2 rounded-lg text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors flex items-center">
-              <span>Features</span>
-              <ChevronDown className="ml-1 h-4 w-4 transition-transform group-hover:rotate-180" />
-            </button>
-            <div className="absolute right-0 mt-1 w-48 origin-top-right rounded-md bg-popover shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out transform scale-95 group-hover:scale-100 z-50">
-              <div className="p-2 space-y-1">
-                <DropdownItem icon={<Shield className="h-4 w-4" />} label="Escrow System" />
-                <DropdownItem icon={<User className="h-4 w-4" />} label="Arbitration" />
-                <DropdownItem icon={<BarChart2 className="h-4 w-4" />} label="Analytics" />
-              </div>
-            </div>
-          </div>
         </div>
         
         {/* Auth Buttons & Theme Switch */}

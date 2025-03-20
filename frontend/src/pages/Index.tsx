@@ -36,7 +36,7 @@ const Index = () => {
       
       <main className="pt-16">
         {/* Hero Section */}
-        <HeroSection />
+        <HeroSection onGetStarted={() => openAuthModal('register')}/>
         
         {/* Features Section */}
         <FeatureSection onGetStarted={() => openAuthModal('register')} />

@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Shield, Shuffle, BarChart2 } from 'lucide-react';
 import { useFadeIn } from '@/utils/animations';
-
-const HeroSection = () => {
+import "../App.css";
+interface HeroSectionProps {
+  onGetStarted: () => void;
+}
+const HeroSection = ({onGetStarted}:HeroSectionProps) => {
   const [heroStats, setHeroStats] = useState({
     trades: 0,
     volume: 0,
@@ -64,46 +67,23 @@ const HeroSection = () => {
             </h1>
             
             <p 
-              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto lg:mx-0"
+              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto lg:mx-0 mt-10"
               style={subtitleStyle}
             >
               Buy and sell cryptocurrencies directly with other users through our secure escrow-based platform. No middlemen, no excessive fees.
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-12" style={ctaStyle}>
-              <Button size="lg" className="group font-medium text-base">
+              <Button size="lg" className="group font-medium text-base mt-5"  onClick={onGetStarted} >
                 Start Trading
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-              <Button size="lg" variant="outline" className="font-medium text-base">
-                Explore Features
+              <Button size="lg" variant="outline" className="font-medium text-base mt-5" >
+               <a href="#features">Explore Features</a> 
               </Button>
             </div>
-            
-            {/* Stats Row */}
-            <div 
-              className="grid grid-cols-3 gap-4 text-center lg:text-left"
-              style={statsStyle}
-            >
-              <div className="space-y-1">
-                <p className="text-2xl md:text-3xl font-display font-bold">
-                  {heroStats.trades.toLocaleString()}+
-                </p>
-                <p className="text-sm text-muted-foreground">Trades Completed</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl md:text-3xl font-display font-bold">
-                  ${heroStats.volume.toLocaleString()}M+
-                </p>
-                <p className="text-sm text-muted-foreground">Trading Volume</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl md:text-3xl font-display font-bold">
-                  {heroStats.users.toLocaleString()}+
-                </p>
-                <p className="text-sm text-muted-foreground">Active Users</p>
-              </div>
-            </div>
+
+           
           </div>
           
           {/* Right Column: Hero Image/Illustration */}
