@@ -1,4 +1,3 @@
-
 import { useFadeIn } from '@/utils/animations';
 
 interface FeatureCardProps {

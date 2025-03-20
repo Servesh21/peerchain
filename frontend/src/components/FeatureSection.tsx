@@ -24,19 +24,9 @@ const FeatureSection = ({ onGetStarted }: FeatureSectionProps) => {
       description: 'Our smart contract escrow system ensures secure transactions between buyers and sellers with no third-party involvement.'
     },
     {
-      icon: <UserCog className="h-5 w-5 text-primary" />,
-      title: 'Dispute Resolution',
-      description: 'Fair arbitration system with human moderators and DAO-based governance to resolve any transaction disputes.'
-    },
-    {
       icon: <DollarSign className="h-5 w-5 text-primary" />,
       title: 'Multiple Payment Methods',
       description: 'Support for bank transfers, credit cards, PayPal, and other regional payment options for fiat-to-crypto exchanges.'
-    },
-    {
-      icon: <LineChart className="h-5 w-5 text-primary" />,
-      title: 'Trading Dashboard',
-      description: 'Comprehensive dashboard with real-time market data, transaction history, and portfolio performance metrics.'
     },
     {
       icon: <Globe className="h-5 w-5 text-primary" />,
@@ -60,7 +50,7 @@ const FeatureSection = ({ onGetStarted }: FeatureSectionProps) => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature, index) => (
             <FeatureCard 
               key={index}
