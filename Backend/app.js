@@ -23,7 +23,7 @@ app.use(
 app.use("/api/user", userRoute);
 
 // Add this route under your userRoutes:
-app.use("/api/blockchain", blockchainRoutes);
+// app.use("/api/blockchain", blockchainRoutes);
 
 app.listen(5500, () => {
   console.log("API running on port 5500");

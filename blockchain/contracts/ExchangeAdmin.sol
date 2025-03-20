@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 contract ExchangeAdmin {
     address public owner;
-    mapping(address => bool) public approvedExchanges;
+    mapping(address => bool) public approvedSellers;
 
-    event ExchangeAdded(address indexed exchange);
-    event ExchangeRemoved(address indexed exchange);
+    event SellerApproved(address indexed seller);
+    event SellerRemoved(address indexed seller);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not contract owner");
@@ -17,17 +17,17 @@ contract ExchangeAdmin {
         owner = msg.sender;
     }
 
-    function addExchange(address _exchange) public onlyOwner {
-        approvedExchanges[_exchange] = true;
-        emit ExchangeAdded(_exchange);
+    function approveSeller(address _seller) public onlyOwner {
+        approvedSellers[_seller] = true;
+        emit SellerApproved(_seller);
     }
 
-    function removeExchange(address _exchange) public onlyOwner {
-        approvedExchanges[_exchange] = false;
-        emit ExchangeRemoved(_exchange);
+    function removeSeller(address _seller) public onlyOwner {
+        approvedSellers[_seller] = false;
+        emit SellerRemoved(_seller);
     }
 
-    function isApprovedExchange(address _exchange) public view returns (bool) {
-        return approvedExchanges[_exchange];
+    function isApprovedSeller(address _seller) public view returns (bool) {
+        return approvedSellers[_seller];
     }
 }

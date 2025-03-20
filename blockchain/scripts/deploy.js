@@ -1,17 +1,24 @@
-async function main() {
+const { ethers } = require("hardhat");
+
+async function deployEscrow() {
     const [deployer] = await ethers.getSigners();
+    console.log("Deploying Escrow contract with account:", deployer.address);
 
-    console.log("Deploying contracts with the account:", deployer.address);
-
-    // Deploy Escrow contract
-    const EscrowFactory = await ethers.getContractFactory("PeerToPeerEscrow");
+    const EscrowFactory = await ethers.getContractFactory("BitcoinEscrow");
     const escrow = await EscrowFactory.deploy();
+    await escrow.waitForDeployment(); // ✅ Correct way to wait for deployment
 
-    await escrow.waitForDeployment(); // ✅ Corrected from deployed()
     console.log("Escrow contract deployed to:", escrow.target);
+    return escrow; // ✅ Return deployed contract instance
 }
 
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+async function main() {
+    try {
+        const escrowContract = await deployEscrow(); // Call deployment function
+    } catch (error) {
+        console.error("Error deploying contracts:", error);
+        process.exit(1);
+    }
+}
+
+main();
