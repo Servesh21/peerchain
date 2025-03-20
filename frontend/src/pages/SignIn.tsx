@@ -245,7 +245,7 @@ const SignIn = () => {
                 <form onSubmit={handleLogin}>
                   <div className="space-y-4">
                     <div className="space-y-2 ">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="text-left block">Email</Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                           <Mail className="h-4 w-4" />
@@ -305,18 +305,13 @@ const SignIn = () => {
                     </Button>
                   </div>
                 </form>
-
-
-
-
-                
               </TabsContent>
 
               <TabsContent value="register">
                 <form onSubmit={handleRegister}>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
+                      <Label htmlFor="name" className="text-left block">Full Name</Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                           <User className="h-4 w-4" />
@@ -334,7 +329,9 @@ const SignIn = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="text-left block">
+                        Email
+                      </Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                           <Mail className="h-4 w-4" />
@@ -352,7 +349,7 @@ const SignIn = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password" className="text-left block">Password</Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                           <Lock className="h-4 w-4" />
@@ -380,8 +377,8 @@ const SignIn = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Connect Wallet</Label>
+                    <div className="space-y-2" >
+                      <Label className="text-left block">Connect Wallet</Label>
                       <Button
                         type="button"
                         variant="outline"
@@ -428,8 +425,6 @@ const SignIn = () => {
                     </Button>
                   </div>
                 </form>
-
-
               </TabsContent>
             </Tabs>
           </div>
