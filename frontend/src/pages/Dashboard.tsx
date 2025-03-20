@@ -20,7 +20,6 @@ import {
   Plus
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import PriceChart from '@/components/PriceChart';
 import { useFadeIn } from '@/utils/animations';
 
 const Dashboard = () => {
@@ -300,9 +299,7 @@ const Dashboard = () => {
           </div>
           
           {/* Price Chart */}
-          <div className="mb-8" style={chartAnimation}>
-            <PriceChart />
-          </div>
+
           
           {/* Transaction History */}
           <div className="bg-card border border-border rounded-xl shadow-subtle" style={transactionsAnimation}>

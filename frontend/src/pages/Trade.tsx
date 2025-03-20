@@ -23,7 +23,6 @@ import {
   Info
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import PriceChart from '@/components/PriceChart';
 import { useFadeIn } from '@/utils/animations';
 
 const Trade = () => {
@@ -201,9 +200,7 @@ const Trade = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left column - Price Chart */}
-            <div className="lg:col-span-2" style={chartAnimation}>
-              <PriceChart coinId={selectedCurrency.id} />
-            </div>
+        
             
             {/* Right column - Trade Form */}
             <div 

@@ -4,7 +4,6 @@ import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import FeatureSection from '@/components/FeatureSection';
 import EscrowSection from '@/components/EscrowSection';
-import MarketSection from '@/components/MarketSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
@@ -43,9 +42,6 @@ const Index = () => {
         
         {/* Escrow Explainer Section */}
         <EscrowSection />
-        
-        {/* Live Market Section */}
-        <MarketSection />
         
         {/* CTA Section */}
         <CTASection 
