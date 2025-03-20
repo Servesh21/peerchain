@@ -1,0 +1,174 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 33% 99%;
+    --foreground: 220 10% 15%;
+
+    --card: 220 20% 100%;
+    --card-foreground: 220 10% 15%;
+
+    --popover: 220 20% 100%;
+    --popover-foreground: 220 10% 15%;
+
+    --primary: 212 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 97%;
+    --secondary-foreground: 212 17% 38%;
+
+    --muted: 220 20% 96%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 212 100% 97%;
+    --accent-foreground: 212 100% 50%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 10% 80%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 220 20% 12%;
+    --foreground: 220 10% 98%;
+
+    --card: 220 20% 14%;
+    --card-foreground: 220 10% 98%;
+
+    --popover: 220 20% 14%;
+    --popover-foreground: 220 10% 98%;
+
+    --primary: 212 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 220 10% 80%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 212 100% 22%;
+    --accent-foreground: 212 100% 90%;
+
+    --destructive: 0 74% 42%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 212 100% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border selection:bg-primary/20;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv09", "cv11";
+  }
+
+  /* Import fonts */
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url(https://rsms.me/inter/font-files/Inter-roman.var.woff2) format('woff2');
+  }
+  @font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url(https://rsms.me/inter/font-files/Inter-italic.var.woff2) format('woff2');
+  }
+}
+
+@layer components {
+  /* Glass card effect */
+  .glass {
+    @apply bg-white/80 dark:bg-black/40 backdrop-blur-md border border-white/20 dark:border-white/10;
+  }
+  
+  /* Transitions */
+  .page-transition-enter {
+    @apply animate-fade-in animate-slide-up;
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+  .card-hover:hover {
+    @apply shadow-card-hover -translate-y-1;
+  }
+  
+  /* Button styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors;
+  }
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors;
+  }
+  
+  /* Chart styles */
+  .chart-container {
+    @apply rounded-lg p-4 h-full w-full overflow-hidden;
+  }
+  
+  /* Price movement indicators */
+  .price-up {
+    @apply text-green-500 font-medium;
+  }
+  .price-down {
+    @apply text-red-500 font-medium;
+  }
+}
+
+/* Page transitions */
+.page-transitions-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-transitions-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 400ms, transform 400ms;
+}
+.page-transitions-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.page-transitions-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/30;
+}
