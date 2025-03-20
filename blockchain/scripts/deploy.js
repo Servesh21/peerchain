@@ -1,14 +1,17 @@
-const { ethers } = require("hardhat");
-
 async function main() {
-    const ContractFactory = await ethers.getContractFactory("TransactionLogger"); // Ensure this matches your contract name
-    const contract = await ContractFactory.deploy(); // Deploys the contract
-    await contract.waitForDeployment(); // <-- Correct function to wait for deployment
+    const [deployer] = await ethers.getSigners();
 
-    console.log("Contract deployed to:", await contract.getAddress()); // Correct way to get contract address
+    console.log("Deploying contracts with the account:", deployer.address);
+
+    // Deploy Escrow contract
+    const EscrowFactory = await ethers.getContractFactory("PeerToPeerEscrow");
+    const escrow = await EscrowFactory.deploy();
+
+    await escrow.waitForDeployment(); // ✅ Corrected from deployed()
+    console.log("Escrow contract deployed to:", escrow.target);
 }
 
 main().catch((error) => {
     console.error(error);
-    process.exit(1);
+    process.exitCode = 1;
 });

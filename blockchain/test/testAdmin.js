@@ -9,7 +9,7 @@ describe("ExchangeAdmin", function () {
         [owner, exchange1, exchange2, randomUser] = await ethers.getSigners();
         ExchangeAdmin = await ethers.getContractFactory("ExchangeAdmin");
         admin = await ExchangeAdmin.deploy();
-        await admin.deployed();
+        // await admin.deployed();
     });
 
     it("Should allow the owner to add an exchange", async function () {
