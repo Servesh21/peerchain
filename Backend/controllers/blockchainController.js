@@ -1,13 +1,16 @@
-// blockchainRouteController.js
-
 const blockchainService = require("../services/blockchainService");
-const Web3 = require("web3");
+const { Web3 } = require("web3");
+require("dotenv").config();
+const Transaction = require("../models/transaction");
 
-// Connect to your blockchain node (e.g., Ganache, Infura, Alchemy)
-// const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-// Replace URL with your blockchain provider (e.g., Infura RPC URL for Ethereum)
+// Initialize Web3 with Infura or Alchemy
+const web3 = new Web3(process.env.ALCHEMY_SEPOLIA_URL);
 
-// GET wallet balance controller
+
+/**
+ * @desc Get wallet balance
+ * @route GET /api/blockchain/balance/:address
+ */
 const getBalance = async (req, res) => {
   try {
     const { address } = req.params;
@@ -19,46 +22,39 @@ const getBalance = async (req, res) => {
     const balanceWei = await web3.eth.getBalance(address);
     const balanceEther = web3.utils.fromWei(balanceWei, "ether");
 
-    return res.status(200).json({
-      address,
-      balance: balanceEther,
-      unit: "ETH",
-    });
+    return res.status(200).json({ address, balance: balanceEther, unit: "ETH" });
   } catch (error) {
     console.error("Error fetching balance:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
 /**
- * @desc Create a new blockchain transaction
+ * @desc Create a transaction object (User signs in MetaMask)
  * @route POST /api/blockchain/transaction
  */
+
 const createTransaction = async (req, res) => {
   try {
-    const { to, value } = req.body;
+    const { sender, privateKey, to, value } = req.body;
 
-    // Validate input
-    if (!to || !value) {
-      return res
-        .status(400)
-        .json({ message: "Missing 'to' address or 'value'." });
+    console.log("Received Transaction Data:", { sender, privateKey, to, value });
+
+    if (!sender || !privateKey || !to || !value) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Call blockchain service
-    const txHash = await blockchainService.sendToBlockchain({ to, value });
+    const receipt = await blockchainService.signAndSendTransaction({ sender, privateKey, to, value });
 
-    return res.status(201).json({
-      message: "Transaction sent successfully",
-      txHash,
-    });
+    return res.status(201).json({ message: "Transaction successful", receipt });
   } catch (error) {
-    console.error("Blockchain transaction error:", error);
-    return res
-      .status(500)
-      .json({ message: "Transaction failed", error: error.message });
+    console.error("Transaction error:", error);
+    return res.status(500).json({ message: "Transaction failed", error: error.message });
   }
 };
+
+
+
 
 /**
  * @desc Get blockchain transaction details
@@ -74,15 +70,10 @@ const getTransactionDetails = async (req, res) => {
 
     const txDetails = await blockchainService.getTransactionDetails(txHash);
 
-    return res.status(200).json({
-      message: "Transaction details fetched successfully",
-      txDetails,
-    });
+    return res.status(200).json({ message: "Transaction details fetched successfully", txDetails });
   } catch (error) {
     console.error("Fetch transaction details error:", error);
-    return res
-      .status(500)
-      .json({ message: "Error fetching transaction", error: error.message });
+    return res.status(500).json({ message: "Error fetching transaction", error: error.message });
   }
 };
 

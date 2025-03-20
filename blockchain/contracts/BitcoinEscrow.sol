@@ -60,6 +60,7 @@ contract BitcoinEscrow {
     function buyWithCrypto(bytes32 _listingId) public payable {
         Listing storage listing = listings[_listingId];
         require(!listing.isSold, "Already sold");
+        require(listing.buyer == address(0), "Buyer already assigned");
 
         if (listing.tokenAddress == address(0)) {
             // Buyer pays in ETH
@@ -79,7 +80,7 @@ contract BitcoinEscrow {
         emit PaymentReceived(_listingId, msg.sender);
     }
 
-    // Seller confirms fiat payment manually after backend verification
+    // Seller confirms fiat payment manually (can also set buyer)
     function confirmFiatPayment(
         bytes32 _listingId,
         address _buyer
@@ -87,6 +88,7 @@ contract BitcoinEscrow {
         Listing storage listing = listings[_listingId];
         require(!listing.isSold, "Already sold");
         require(!listing.isPaid, "Payment already completed");
+        require(_buyer != address(0), "Invalid buyer address"); // Ensures a valid buyer is provided
 
         listing.buyer = _buyer;
         listing.isPaid = true;

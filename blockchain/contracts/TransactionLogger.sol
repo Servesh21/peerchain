@@ -24,6 +24,7 @@ contract TransactionLogger {
     );
 
     function recordTransaction(
+        address _sender,
         address _receiver,
         uint256 _amount,
         string memory _paymentMethod,
@@ -35,7 +36,7 @@ contract TransactionLogger {
         );
 
         transactions[_txHash] = Transaction(
-            msg.sender,
+            _sender,
             _receiver,
             _amount,
             _paymentMethod,
@@ -45,7 +46,7 @@ contract TransactionLogger {
         transactionIds.push(_txHash);
 
         emit TransactionRecorded(
-            msg.sender,
+            _sender,
             _receiver,
             _amount,
             _paymentMethod,

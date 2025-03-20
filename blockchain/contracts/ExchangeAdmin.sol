@@ -13,6 +13,11 @@ contract ExchangeAdmin {
         _;
     }
 
+    modifier onlyApprovedSeller() {
+        require(approvedSellers[msg.sender], "Seller not approved");
+        _;
+    }
+
     constructor() {
         owner = msg.sender;
     }

@@ -1,39 +1,38 @@
-const { DataTypes } = require("sequelize");
-const { sequelize } = require("./index");
+const mongoose = require("mongoose");
 
-const Transaction = sequelize.define(
-  "Transaction",
+const transactionSchema = new mongoose.Schema(
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
     sender: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
     },
     receiver: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
     },
     amount: {
-      type: DataTypes.DECIMAL(18, 8), // Supports large decimal values
-      allowNull: false,
+      type: String, // Store amount as a string to avoid BigInt serialization issues
+      required: true,
     },
     txHash: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
       unique: true,
+      sparse: true, // Allows txHash to be optional during initial creation
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["ETH", "USDT", "UPI", "Bank Transfer"],
+      required: true,
     },
     status: {
-      type: DataTypes.ENUM("PENDING", "CONFIRMED", "FAILED"),
-      defaultValue: "PENDING",
+      type: String,
+      enum: ["PENDING", "CONFIRMED", "FAILED"],
+      default: "PENDING",
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
+const Transaction = mongoose.model("Transaction", transactionSchema);
 
 module.exports = Transaction;
