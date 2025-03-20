@@ -23,16 +23,83 @@ import { useFadeIn } from "@/utils/animations";
 import { toast } from "@/components/ui/use-toast";
 import { constructNow } from "date-fns";
 
+// Add MetaMask type declaration
+declare global {
+  interface Window {
+    ethereum?: {
+      isMetaMask?: boolean;
+      request: (args: { method: string; params?: any[] }) => Promise<any>;
+      on: (eventName: string, callback: (params: any) => void) => void;
+      removeListener: (
+        eventName: string,
+        callback: (params: any) => void
+      ) => void;
+    };
+  }
+}
+
 const SignIn = () => {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useUser();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Form states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+
+  // Check if MetaMask is installed
+  const isMetaMaskInstalled =
+    typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask;
+
+  // Connect to MetaMask
+  const connectMetaMask = async () => {
+    if (!isMetaMaskInstalled) {
+      toast({
+        title: "MetaMask not found",
+        description: "Please install MetaMask to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      // Request account access
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const address = accounts[0];
+      setWalletAddress(address);
+
+      // Listen for account changes
+      window.ethereum.on("accountsChanged", (accounts: string[]) => {
+        if (accounts.length === 0) {
+          setWalletAddress(null);
+        } else {
+          setWalletAddress(accounts[0]);
+        }
+      });
+
+      toast({
+        title: "Wallet Connected",
+        description: `Connected to ${address.slice(0, 6)}...${address.slice(
+          -4
+        )}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Connection Error",
+        description: error.message || "Failed to connect to MetaMask",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -230,9 +297,17 @@ const SignIn = () => {
                       variant="outline"
                       type="button"
                       className="flex items-center justify-center"
+                      onClick={connectMetaMask}
+                      disabled={isConnecting}
                     >
                       <Wallet className="mr-2 h-4 w-4" />
-                      MetaMask
+                      {isConnecting
+                        ? "Connecting..."
+                        : walletAddress
+                        ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(
+                            -4
+                          )}`
+                        : "MetaMask"}
                     </Button>
                     <Button
                       variant="outline"
@@ -250,13 +325,13 @@ const SignIn = () => {
                 <form onSubmit={handleRegister}>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="reg-name">Full Name</Label>
+                      <Label htmlFor="name">Full Name</Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                           <User className="h-4 w-4" />
                         </div>
                         <Input
-                          id="reg-name"
+                          id="name"
                           type="text"
                           placeholder="John Doe"
                           className="pl-10"
@@ -268,13 +343,13 @@ const SignIn = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="reg-email">Email</Label>
+                      <Label htmlFor="email">Email</Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                           <Mail className="h-4 w-4" />
                         </div>
                         <Input
-                          id="reg-email"
+                          id="email"
                           type="email"
                           placeholder="name@example.com"
                           className="pl-10"
@@ -286,13 +361,13 @@ const SignIn = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="reg-password">Password</Label>
+                      <Label htmlFor="password">Password</Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                           <Lock className="h-4 w-4" />
                         </div>
                         <Input
-                          id="reg-password"
+                          id="password"
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           className="pl-10"
@@ -312,6 +387,27 @@ const SignIn = () => {
                           )}
                         </button>
                       </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Connect Wallet</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={connectMetaMask}
+                        disabled={isConnecting}
+                      >
+                        <Wallet className="mr-2 h-4 w-4" />
+                        {isConnecting
+                          ? "Connecting..."
+                          : walletAddress
+                          ? `Connected: ${walletAddress.slice(
+                              0,
+                              6
+                            )}...${walletAddress.slice(-4)}`
+                          : "Connect MetaMask"}
+                      </Button>
                     </div>
 
                     <div className="space-y-2">
@@ -382,4 +478,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignIn;
