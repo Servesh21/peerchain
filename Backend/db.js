@@ -1,21 +1,17 @@
-const { Pool } = require("pg");
-const dotenv = require("dotenv");
-dotenv.config();
-
-console.log("Loaded DB URL:", process.env.DATABASE_URL);
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: false,
-});
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 const connectDB = async () => {
   try {
-    await pool.connect();
-    console.log("Postgres connected!");
+    await mongoose.connect("mongodb://127.0.0.1:27017/PeerChain", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("MongoDB Connected Successfully ✅");
   } catch (err) {
-    console.error("Postgres connection error:", err);
+    console.error("MongoDB Connection Error ❌", err);
+    process.exit(1);
   }
 };
 
-module.exports = { pool, connectDB };
+module.exports = connectDB;

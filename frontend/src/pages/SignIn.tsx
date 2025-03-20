@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useFadeIn } from "@/utils/animations";
 import { toast } from "@/components/ui/use-toast";
+import { constructNow } from "date-fns";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const SignIn = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/user/login", {
+      const res = await fetch("http://localhost:5500/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -76,36 +77,32 @@ const SignIn = () => {
     }
   };
 
-  // Handle registration
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent form submission
 
     try {
-      const res = await fetch("http://localhost:5000/api/user/register", {
+      const res = await fetch("http://localhost:5500/api/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          username: name, // Using 'name' as 'username'
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Registration failed");
-
-      // Save user info (you can also save the JWT token here if needed)
-      login({
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-      });
+      if (!res.ok) throw new Error(data.message);
 
       toast({
         title: "Account created!",
-        description: "Your account has been successfully created.",
+        description: "You can now log in.",
       });
 
-      navigate("/dashboard");
+      setActiveTab("login"); // Switch to login tab after registration
     } catch (err: any) {
       toast({
-        title: "Error",
+        title: "Registration Failed",
         description: err.message,
         variant: "destructive",
       });

@@ -3,6 +3,8 @@ const passport = require("./config/passport");
 const userRoute = require("./routes/userroute");
 const blockchainRoutes = require("./routes/blockchainRoute");
 const cors = require("cors");
+const connectDB = require("./db");
+connectDB();
 
 require("dotenv").config();
 
