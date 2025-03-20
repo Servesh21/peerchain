@@ -19,7 +19,14 @@ import {
   Shuffle,
   Star,
   ChevronRight,
-  Info
+  Info,
+  X,
+  BarChart2,
+  ExternalLink,
+  MoreHorizontal,
+  ShieldAlert,
+  Copy,
+  Plus
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useFadeIn } from '@/utils/animations';
@@ -72,9 +79,21 @@ const Trade = () => {
   
   // Mock payment methods
   const paymentMethods = [
-    { id: 'bank', name: 'Bank Transfer', icon: <CircleDollarSign className="h-4 w-4" /> },
-    { id: 'card', name: 'Credit/Debit Card', icon: <CreditCard className="h-4 w-4" /> },
-    { id: 'paypal', name: 'PayPal', icon: <Wallet className="h-4 w-4" /> }
+    {
+      id: 'bank',
+      name: 'Bank Transfer',
+      icon: <CircleDollarSign className="h-4 w-4 text-primary" />
+    },
+    {
+      id: 'card',
+      name: 'Credit Card',
+      icon: <CreditCard className="h-4 w-4 text-primary" />
+    },
+    {
+      id: 'crypto',
+      name: 'Crypto',
+      icon: <Wallet className="h-4 w-4 text-primary" />
+    }
   ];
   
   // Mock trade offers

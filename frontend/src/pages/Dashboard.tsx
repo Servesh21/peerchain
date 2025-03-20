@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -162,19 +161,15 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto">
           {/* Dashboard Header */}
           <div 
-            className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4"
+            className="mb-12"
             style={headerAnimation}
           >
-            <div>
-              <h1 className="text-3xl font-display font-bold">Dashboard</h1>
-              <p className="text-muted-foreground">Manage your crypto portfolio and trades</p>
+            <div className="flex flex-col items-center text-center mb-6">
+              <h1 className="text-4xl font-display font-bold mb-3">Dashboard</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl">Manage your crypto portfolio and trades</p>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" className="flex items-center">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh
-              </Button>
+            <div className="flex justify-end">
               <Button className="flex items-center">
                 <Plus className="mr-2 h-4 w-4" />
                 New Trade
@@ -183,45 +178,44 @@ const Dashboard = () => {
           </div>
           
           {/* Portfolio Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Total Balance Card */}
+          <div className="max-w-5xl mx-auto mb-16">
             <div 
-              className="bg-card border border-border rounded-xl p-6 shadow-subtle h-full"
+              className="bg-card border border-border rounded-xl p-8 shadow-subtle"
               style={cardAnimation1}
             >
-              <div className="flex items-start justify-between mb-6">
+              <div className="flex items-start justify-between mb-8">
                 <div>
-                  <h2 className="text-muted-foreground text-sm font-medium mb-1">Total Portfolio Value</h2>
-                  <p className="text-3xl font-display font-bold">${totalValue.toLocaleString()}</p>
+                  <h2 className="text-muted-foreground text-sm font-medium mb-2">Total Portfolio Value</h2>
+                  <p className="text-4xl font-display font-bold">${totalValue.toLocaleString()}</p>
                 </div>
-                <div className="p-2 rounded-full bg-primary/10">
-                  <Wallet className="h-5 w-5 text-primary" />
+                <div className="p-3 rounded-full bg-primary/10">
+                  <Wallet className="h-6 w-6 text-primary" />
                 </div>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {portfolio.map((coin) => (
                   <div key={coin.id} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div 
-                        className="h-8 w-8 rounded-full flex items-center justify-center mr-3 text-white text-xs font-bold"
+                        className="h-10 w-10 rounded-full flex items-center justify-center mr-4 text-white text-sm font-bold"
                         style={{ backgroundColor: coin.color }}
                       >
                         {coin.symbol.substring(0, 1)}
                       </div>
                       <div>
-                        <p className="font-medium">{coin.name}</p>
-                        <p className="text-xs text-muted-foreground">{coin.balance} {coin.symbol}</p>
+                        <p className="font-medium text-lg">{coin.name}</p>
+                        <p className="text-sm text-muted-foreground">{coin.balance} {coin.symbol}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">${coin.value.toLocaleString()}</p>
-                      <p className={`text-xs flex items-center justify-end ${
+                      <p className="font-medium text-lg">${coin.value.toLocaleString()}</p>
+                      <p className={`text-sm flex items-center justify-end ${
                         coin.change >= 0 ? 'text-green-500' : 'text-red-500'
                       }`}>
                         {coin.change >= 0 ? 
-                          <ArrowUp className="h-3 w-3 mr-1" /> : 
-                          <ArrowDown className="h-3 w-3 mr-1" />
+                          <ArrowUp className="h-4 w-4 mr-1" /> : 
+                          <ArrowDown className="h-4 w-4 mr-1" />
                         }
                         {Math.abs(coin.change)}%
                       </p>
@@ -230,69 +224,14 @@ const Dashboard = () => {
                 ))}
               </div>
               
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="w-full">
-                  <ExternalLink className="mr-2 h-4 w-4" />
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <Button variant="outline" className="w-full py-6 text-lg">
+                  <ExternalLink className="mr-2 h-5 w-5" />
                   Withdraw
                 </Button>
-                <Button className="w-full">
-                  <Plus className="mr-2 h-4 w-4" />
+                <Button className="w-full py-6 text-lg">
+                  <Plus className="mr-2 h-5 w-5" />
                   Deposit
-                </Button>
-              </div>
-            </div>
-            
-            {/* Quick Actions Card */}
-            <div 
-              className="bg-card border border-border rounded-xl p-6 shadow-subtle h-full"
-              style={cardAnimation2}
-            >
-              <h2 className="text-xl font-display font-semibold mb-6 flex items-center">
-                <BarChart2 className="mr-2 h-5 w-5 text-primary" />
-                Trading Activity
-              </h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <p className="text-muted-foreground text-sm mb-2">Escrow Balance</p>
-                  <p className="text-2xl font-display font-bold">0.15 BTC <span className="text-base font-normal text-muted-foreground">($6,473.52)</span></p>
-                  <div className="flex items-center mt-2">
-                    <div className="h-2 bg-secondary rounded-full flex-grow">
-                      <div className="h-2 bg-primary rounded-full w-2/3"></div>
-                    </div>
-                    <span className="text-xs text-muted-foreground ml-2">2 active trades</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <p className="text-muted-foreground text-sm mb-2">30-Day Trading Volume</p>
-                  <p className="text-2xl font-display font-bold">$32,495.88</p>
-                  <p className="text-sm text-green-500 flex items-center mt-1">
-                    <ArrowUp className="h-3 w-3 mr-1" />
-                    12.4% from last month
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-secondary p-4 rounded-xl">
-                    <p className="text-muted-foreground text-sm mb-1">Success Rate</p>
-                    <p className="text-xl font-semibold">98.5%</p>
-                  </div>
-                  <div className="bg-secondary p-4 rounded-xl">
-                    <p className="text-muted-foreground text-sm mb-1">Response Time</p>
-                    <p className="text-xl font-semibold">14 min</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="w-full">
-                  <Clock className="mr-2 h-4 w-4" />
-                  Active Trades
-                </Button>
-                <Button className="w-full">
-                  <Search className="mr-2 h-4 w-4" />
-                  Find Offers
                 </Button>
               </div>
             </div>
