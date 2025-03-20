@@ -279,46 +279,6 @@ const SignIn = () => {
                     </Button>
                   </div>
                 </form>
-
-                <div className="mt-6">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <Separator />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mt-4">
-                    <Button
-                      variant="outline"
-                      type="button"
-                      className="flex items-center justify-center"
-                      onClick={connectMetaMask}
-                      disabled={isConnecting}
-                    >
-                      <Wallet className="mr-2 h-4 w-4" />
-                      {isConnecting
-                        ? "Connecting..."
-                        : walletAddress
-                        ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(
-                            -4
-                          )}`
-                        : "MetaMask"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      className="flex items-center justify-center"
-                    >
-                      <Shield className="mr-2 h-4 w-4" />
-                      WalletConnect
-                    </Button>
-                  </div>
-                </div>
               </TabsContent>
 
               <TabsContent value="register">
@@ -437,38 +397,6 @@ const SignIn = () => {
                     </Button>
                   </div>
                 </form>
-
-                <div className="mt-6">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <Separator />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mt-4">
-                    <Button
-                      variant="outline"
-                      type="button"
-                      className="flex items-center justify-center"
-                    >
-                      <Wallet className="mr-2 h-4 w-4" />
-                      MetaMask
-                    </Button>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      className="flex items-center justify-center"
-                    >
-                      <Shield className="mr-2 h-4 w-4" />
-                      WalletConnect
-                    </Button>
-                  </div>
-                </div>
               </TabsContent>
             </Tabs>
           </div>
