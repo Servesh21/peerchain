@@ -166,31 +166,6 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Floating Elements */}
-            <div className="absolute top-1/4 -left-12 bg-card p-3 rounded-lg shadow-lg border border-border glass animate-bounce" style={{ animationDuration: '10s' }}>
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 rounded-full bg-crypto-binance flex items-center justify-center">
-                  <span className="text-black text-xs font-bold">BNB</span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">BNB</p>
-                  <p className="text-xs text-green-500">+3.2%</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="absolute bottom-1/4 -right-6 bg-card p-3 rounded-lg shadow-lg border border-border glass animate-bounce" style={{ animationDuration: '8s', animationDelay: '1s' }}>
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 rounded-full bg-crypto-tether flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">USDT</span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">USDT</p>
-                  <p className="text-xs text-muted-foreground">$1.00</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

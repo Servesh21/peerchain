@@ -133,30 +133,6 @@ const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalProps) =>
                 </Button>
               </div>
             </form>
-            
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <Button variant="outline" type="button" className="flex items-center justify-center">
-                  <Wallet className="mr-2 h-4 w-4" />
-                  MetaMask
-                </Button>
-                <Button variant="outline" type="button" className="flex items-center justify-center">
-                  <Shield className="mr-2 h-4 w-4" />
-                  WalletConnect
-                </Button>
-              </div>
-            </div>
           </TabsContent>
           
           <TabsContent value="register" className="mt-4">
@@ -243,43 +219,10 @@ const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalProps) =>
                 </Button>
               </div>
             </form>
-            
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
+          
               
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <Button variant="outline" type="button" className="flex items-center justify-center">
-                  <Wallet className="mr-2 h-4 w-4" />
-                  MetaMask
-                </Button>
-                <Button variant="outline" type="button" className="flex items-center justify-center">
-                  <Shield className="mr-2 h-4 w-4" />
-                  WalletConnect
-                </Button>
-              </div>
-            </div>
           </TabsContent>
         </Tabs>
-        
-        <DialogFooter className="mt-4 flex flex-col sm:flex-row gap-2">
-          <DialogClose asChild>
-            <Button type="button" variant="outline" className="w-full sm:w-auto">
-              Cancel
-            </Button>
-          </DialogClose>
-          <Button type="button" className="w-full sm:w-auto" onClick={handleSubmit}>
-            {activeTab === 'login' ? 'Sign In' : 'Create Account'}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
