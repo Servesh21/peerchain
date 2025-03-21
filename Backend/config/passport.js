@@ -3,6 +3,25 @@ const { Strategy: JwtStrategy, ExtractJwt } = require("passport-jwt");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const passport = require("passport");
+require('dotenv').config();
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is not defined in environment variables');
+}
+
+// Session serialization
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
 
 // Local Strategy for Login
 passport.use(
@@ -25,23 +44,22 @@ passport.use(
   )
 );
 
-// JWT Strategy for protecting routes
+// JWT Strategy for API authentication
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,
+};
+
 passport.use(
-  new JwtStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'e5c1b8c3a7d27a891b5e9821bfc5d9baff75a4c2ddce8f8945d4cfa81a18d5f2',
-    },
-    async (payload, done) => {
-      try {
-        const user = await User.findById(payload.id);
-        if (!user) return done(null, false);
-        return done(null, user);
-      } catch (err) {
-        return done(err, false);
-      }
+  new JwtStrategy(jwtOptions, async (payload, done) => {
+    try {
+      const user = await User.findById(payload.id);
+      if (!user) return done(null, false);
+      return done(null, user);
+    } catch (err) {
+      return done(err, false);
     }
-  )
+  })
 );
 
 module.exports = passport;

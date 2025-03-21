@@ -5,9 +5,17 @@ const User = require("../models/user");
 
 const router = express.Router();
 
+// Middleware to check if user is authenticated
+const isAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ error: "Not authenticated" });
+};
+
 // ✅ Register Route
 router.post("/register", async (req, res) => {
-  const { username, email, password ,walletAddress } = req.body;
+  const { username, email, password, walletAddress } = req.body;
 
   try {
     // Check if user already exists
@@ -20,13 +28,21 @@ router.post("/register", async (req, res) => {
     const newUser = new User({ username, email, password, walletAddress });
     await newUser.save();
 
-    res.json({
-      user: {
-        id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-        walletAddress,
-      },
+    // Log the user in after registration
+    req.login(newUser, (err) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      res.json({
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+          walletAddress,
+        },
+        isAuthenticated: true
+      });
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -34,78 +50,77 @@ router.post("/register", async (req, res) => {
 });
 
 // ✅ Login Route
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user || !(await user.isValidPassword(password))) {
-      return res.status(400).json({ error: "Invalid credentials" });
+router.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (!user) {
+      return res.status(401).json({ error: info.message || "Invalid credentials" });
     }
 
-    // Generate JWT token
-    const payload = { id: user._id, email: user.email };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    req.login(user, (err) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
 
-    res.json({
-      token,
-      user: { id: user._id, username: user.username, email: user.email },
+      res.json({
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          walletAddress: user.walletAddress,
+        },
+        isAuthenticated: true
+      });
     });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  })(req, res, next);
+});
+
+// ✅ Logout Route
+router.post("/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+});
+
+// ✅ Check Authentication Status
+router.get("/check-auth", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({
+      isAuthenticated: true,
+      user: {
+        id: req.user._id,
+        username: req.user.username,
+        email: req.user.email,
+        walletAddress: req.user.walletAddress,
+      }
+    });
+  } else {
+    res.json({ isAuthenticated: false });
   }
 });
 
-//linking
-router.post(
-  "/link-wallet",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const { walletAddress } = req.body;
-
-      if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
-        return res.status(400).json({ msg: "Invalid wallet address" });
-      }
-
-      const user = await User.findById(req.user.id);
-      if (!user) return res.status(404).json({ msg: "User not found" });
-
-      user.walletAddress = walletAddress;
-      await user.save();
-
-      res.json({ success: true, walletAddress: user.walletAddress });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+// ✅ Get User Profile (Protected Route)
+router.get("/profile", isAuthenticated, (req, res) => {
+  res.json({
+    user: {
+      id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+      walletAddress: req.user.walletAddress,
     }
-  }
-);
-
-// ✅ Protected Profile Route
-router.get(
-  "/profile",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    res.json({ user: req.user });
-  }
-);
+  });
+});
 
 module.exports = router;
-router.get(
-  "/wallet",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const user = await User.findById(req.user.id);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      res.json({ walletAddress: user.walletAddress || null });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-);

@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/PeerChain", {
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/PeerChain", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
