@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +21,6 @@ import {
 } from "lucide-react";
 import { useFadeIn } from "@/utils/animations";
 import { toast } from "@/components/ui/use-toast";
-import { constructNow } from "date-fns";
 
 // Add MetaMask type declaration
 declare global {
@@ -41,66 +39,17 @@ declare global {
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useUser();
-  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const { login, register, isAuthenticated } = useAuth();
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
 
-  // Form states
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-
-  // Check if MetaMask is installed
-  const isMetaMaskInstalled =
-    typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask;
-
-  // Connect to MetaMask
-  const connectMetaMask = async () => {
-    if (!isMetaMaskInstalled) {
-      toast({
-        title: "MetaMask not found",
-        description: "Please install MetaMask to continue.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsConnecting(true);
-    try {
-      // Request account access
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const address = accounts[0];
-      setWalletAddress(address);
-
-      // Listen for account changes
-      window.ethereum.on("accountsChanged", (accounts: string[]) => {
-        if (accounts.length === 0) {
-          setWalletAddress(null);
-        } else {
-          setWalletAddress(accounts[0]);
-        }
-      });
-
-      toast({
-        title: "Wallet Connected",
-        description: `Connected to ${address.slice(0, 6)}...${address.slice(
-          -4
-        )}`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Connection Error",
-        description: error.message || "Failed to connect to MetaMask",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
+  // Animation
+  const { ref, style } = useFadeIn();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -109,328 +58,168 @@ const SignIn = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Handle login
-  const handleLogin = async (e: React.FormEvent) => {
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5500/api/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      // Save token to localStorage
-      localStorage.setItem("token", data.token);
-
-      // Link wallet after login if walletAddress exists
-      if (walletAddress) {
-        await fetch("http://localhost:5500/api/user/link-wallet", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${data.token}`,
-          },
-          body: JSON.stringify({ walletAddress }),
+      if (activeTab === 'login') {
+        await login(email, password);
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
+      } else {
+        await register(username, email, password);
+        toast({
+          title: "Welcome to PeerChain!",
+          description: "Your account has been created successfully.",
         });
       }
-
-      // Login context call
-      login({
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-      });
-
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
-
       navigate("/dashboard");
-    } catch (err: any) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: err.message,
+        description: error.message || "An error occurred",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!walletAddress) {
-      toast({
-        title: "Wallet Required",
-        description: "Please connect your MetaMask wallet before registering.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5500/api/user/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: name,
-          email,
-          password,
-          walletAddress, // Send wallet address to backend
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      toast({
-        title: "Account created!",
-        description: "You can now log in.",
-      });
-
-      setActiveTab("login");
-    } catch (err: any) {
-      toast({
-        title: "Registration Failed",
-        description: err.message,
-        variant: "destructive",
-      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-background">
       <Navbar />
-
-      <main className="min-h-screen py-28 px-6 bg-gradient-to-br from-background to-secondary/20">
-        <div className="max-w-md mx-auto" style={useFadeIn(0)}>
-          <Button variant="ghost" className="mb-6" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+      <div className="container max-w-md mx-auto pt-20 px-4" ref={ref} style={style}>
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            className="mb-4"
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
           </Button>
+          <h1 className="text-3xl font-bold mb-2">
+            {activeTab === 'login' ? 'Welcome Back' : 'Create Account'}
+          </h1>
+          <p className="text-muted-foreground">
+            {activeTab === 'login'
+              ? 'Sign in to access your account and portfolio.'
+              : 'Join thousands of traders on our secure platform.'}
+          </p>
+        </div>
 
-          <div className="bg-card border border-border rounded-xl shadow-lg p-8">
-            <div className="mb-6 text-center">
-              <h1 className="text-2xl font-display font-bold mb-2">
-                {activeTab === "login" ? "Welcome Back" : "Create Account"}
-              </h1>
-              <p className="text-muted-foreground">
-                {activeTab === "login"
-                  ? "Sign in to access your account and portfolio."
-                  : "Join thousands of traders on our secure platform."}
-              </p>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'login' | 'register')}>
+          <TabsList className="grid grid-cols-2 w-full mb-8">
+            <TabsTrigger value="login" className="flex items-center gap-2">
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </TabsTrigger>
+            <TabsTrigger value="register" className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4" />
+              Register
+            </TabsTrigger>
+          </TabsList>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {activeTab === 'register' && (
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="johndoe"
+                    className="pl-10"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                </div>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
-            <Tabs
-              defaultValue={activeTab}
-              onValueChange={(v) => setActiveTab(v as "login" | "register")}
-              className="w-full"
-            >
-              <TabsList className="grid grid-cols-2 w-full mb-6">
-                <TabsTrigger value="login" className="flex items-center">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
-                </TabsTrigger>
-                <TabsTrigger value="register" className="flex items-center">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Register
-                </TabsTrigger>
-              </TabsList>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                  <Lock className="h-4 w-4" />
+                </div>
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
 
-              <TabsContent value="login">
-                <form onSubmit={handleLogin}>
-                  <div className="space-y-4">
-                    <div className="space-y-2 ">
-                      <Label htmlFor="email" className="text-left block">Email</Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-                          <Mail className="h-4 w-4" />
-                        </div>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="name@example.com"
-                          className="pl-10"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label htmlFor="password">Password</Label>
-                        <button
-                          type="button"
-                          className="text-xs text-primary hover:underline"
-                        >
-                          Forgot password?
-                        </button>
-                      </div>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-                          <Lock className="h-4 w-4" />
-                        </div>
-                        <Input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          className="pl-10"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <Button type="submit" className="w-full">
-                      <LogIn className="mr-2 h-4 w-4" />
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {activeTab === 'login' ? 'Signing in...' : 'Creating account...'}
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  {activeTab === 'login' ? (
+                    <>
+                      <LogIn className="h-4 w-4 mr-2" />
                       Sign In
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="register">
-                <form onSubmit={handleRegister}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-left block">Full Name</Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-                          <User className="h-4 w-4" />
-                        </div>
-                        <Input
-                          id="name"
-                          type="text"
-                          placeholder="John Doe"
-                          className="pl-10"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-left block">
-                        Email
-                      </Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-                          <Mail className="h-4 w-4" />
-                        </div>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="name@example.com"
-                          className="pl-10"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="password" className="text-left block">Password</Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-                          <Lock className="h-4 w-4" />
-                        </div>
-                        <Input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          className="pl-10"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2" >
-                      <Label className="text-left block">Connect Wallet</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        onClick={connectMetaMask}
-                        disabled={isConnecting}
-                      >
-                        <Wallet className="mr-2 h-4 w-4" />
-                        {isConnecting
-                          ? "Connecting..."
-                          : walletAddress
-                          ? `Connected: ${walletAddress.slice(
-                              0,
-                              6
-                            )}...${walletAddress.slice(-4)}`
-                          : "Connect MetaMask"}
-                      </Button>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="terms"
-                          className="rounded border-gray-300 text-primary focus:ring-primary"
-                          required
-                        />
-                        <Label htmlFor="terms" className="text-sm font-normal">
-                          I agree to the{" "}
-                          <a href="#" className="text-primary hover:underline">
-                            Terms of Service
-                          </a>{" "}
-                          and{" "}
-                          <a href="#" className="text-primary hover:underline">
-                            Privacy Policy
-                          </a>
-                        </Label>
-                      </div>
-                    </div>
-
-                    <Button type="submit" className="w-full">
-                      <UserPlus className="mr-2 h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4 mr-2" />
                       Create Account
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-      </main>
-    </>
+                    </>
+                  )}
+                </span>
+              )}
+            </Button>
+          </form>
+        </Tabs>
+      </div>
+    </div>
   );
 };
 

@@ -1,9 +1,8 @@
-
 import { Button } from '@/components/ui/button';
 import { UserCog, Wallet } from 'lucide-react';
 import { useFadeIn } from '@/utils/animations';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CTASectionProps {
   onRegister?: () => void;
@@ -12,7 +11,7 @@ interface CTASectionProps {
 
 const CTASection = ({ onRegister, onLogin }: CTASectionProps) => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated } = useAuth();
   
   const handleRegister = () => {
     if (onRegister) {
@@ -40,42 +39,28 @@ const CTASection = ({ onRegister, onLogin }: CTASectionProps) => {
       <div className="absolute -bottom-6 -right-6 w-64 h-64 bg-primary/10 blur-3xl rounded-full" />
       
       <div className="max-w-7xl mx-auto relative">
-        <div className="text-center max-w-3xl mx-auto" style={useFadeIn(0)}>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-            Ready to Start Trading Crypto Peer-to-Peer?
+        <div className="text-center">
+          <h2 className="text-4xl font-bold mb-6">
+            Ready to Start Trading?
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10">
-            Join thousands of users already trading securely on our platform. Create your account in minutes and start your crypto journey today.
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Join thousands of traders on our secure platform. Start trading with confidence today.
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {isAuthenticated ? (
-              <Button 
-                size="lg" 
-                className="text-base font-medium group"
-                onClick={handleDashboard}
-              >
-                <Wallet className="mr-2 h-5 w-5" />
+              <Button size="lg" onClick={handleDashboard}>
+                <UserCog className="mr-2 h-5 w-5" />
                 Go to Dashboard
               </Button>
             ) : (
               <>
-                <Button 
-                  size="lg" 
-                  className="text-base font-medium group"
-                  onClick={handleRegister}
-                >
-                  <UserCog className="mr-2 h-5 w-5" />
-                  Create Free Account
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="text-base font-medium"
-                  onClick={handleLogin}
-                >
+                <Button size="lg" onClick={handleRegister}>
                   <Wallet className="mr-2 h-5 w-5" />
-                  Sign In
+                  Get Started
+                </Button>
+                <Button size="lg" variant="outline" onClick={handleLogin}>
+                  Already have an account?
                 </Button>
               </>
             )}

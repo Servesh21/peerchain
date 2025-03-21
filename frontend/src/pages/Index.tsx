@@ -1,5 +1,5 @@
-
 import { useState } from 'react';
+import Layout from '@/components/Layout';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import FeatureSection from '@/components/FeatureSection';
@@ -30,10 +30,10 @@ const Index = () => {
   };
   
   return (
-    <>
+    <Layout>
       <Navbar />
       
-      <main className="pt-16">
+      <main className="min-h-screen">
         {/* Hero Section */}
         <HeroSection onGetStarted={() => openAuthModal('register')}/>
         
@@ -59,7 +59,7 @@ const Index = () => {
         onClose={() => setShowAuthModal(false)}
         defaultTab={authTab}
       />
-    </>
+    </Layout>
   );
 };
 

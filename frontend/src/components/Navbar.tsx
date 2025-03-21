@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import {
   Menu, X, ChevronDown, LogIn, User, Bell, Sun, Moon,
   Wallet, Shield, BarChart2, LogOut, Settings, UserCog
 } from 'lucide-react';
-import { useUser } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,7 @@ const Navbar = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useUser();
+  const { user, isAuthenticated, logout } = useAuth();
   
   // Handle scroll effect
   useEffect(() => {
@@ -51,23 +50,28 @@ const Navbar = () => {
   const handleSignIn = () => {
     navigate('/signin');
   };
-
-  // Navigate to sign in page with register tab active
+  
+  // Navigate to registration page
   const handleGetStarted = () => {
     navigate('/signin');
   };
-
+  
   // Handle logout
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
   
   // Get user initial for avatar
   const getUserInitial = () => {
-    return user?.name ? user.name.charAt(0).toUpperCase() : '?';
+    if (!user?.username) return '?';
+    return user.username.charAt(0).toUpperCase();
   };
-  
+
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 ${
@@ -76,173 +80,177 @@ const Navbar = () => {
           : 'py-5 bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+          <Link to="/" className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
             <Wallet className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-display font-semibold text-xl">PeerChain</span>
         </Link>
-        
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-1">
-          <NavLink to="/" active={location.pathname === "/"}>
-            Home
-          </NavLink>
-          <NavLink to="/trade" active={location.pathname === "/trade"}>
-            Trade
-          </NavLink>
-          <NavLink to="/dashboard" active={location.pathname === "/dashboard"}>
-            Dashboard
-          </NavLink>
-        </div>
-        
-        {/* Auth Buttons & Theme Switch */}
-        <div className="hidden md:flex items-center space-x-4">
-          <button 
-            onClick={toggleDarkMode} 
-            className="p-2 rounded-full hover:bg-secondary transition-colors"
-            aria-label="Toggle dark mode"
-          >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
-          
-          {isAuthenticated ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center space-x-2 rounded-full hover:bg-secondary transition-colors p-1">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary text-primary-foreground">{getUserInitial()}</AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="font-medium">{user?.name}</div>
-                  <div className="text-xs text-muted-foreground">{user?.email}</div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                  <BarChart2 className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/trade')}>
-                  <Wallet className="mr-2 h-4 w-4" />
-                  <span>My Trades</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button variant="outline" className="flex items-center" onClick={handleSignIn}>
-                <LogIn className="mr-2 h-4 w-4" />
-                <span>Sign In</span>
-              </Button>
-              
-              <Button className="animate-pulse-soft" onClick={handleGetStarted}>
-                Get Started
-              </Button>
-            </>
-          )}
-        </div>
-        
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center space-x-4">
-          <button 
-            onClick={toggleDarkMode} 
-            className="p-2 rounded-full hover:bg-secondary transition-colors"
-            aria-label="Toggle dark mode"
-          >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
-          
-          {isAuthenticated && (
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm">{getUserInitial()}</AvatarFallback>
-            </Avatar>
-          )}
-          
-          <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-md hover:bg-secondary transition-colors"
-            aria-label="Menu"
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-      
-      {/* Mobile Menu */}
-      <div 
-        className={`md:hidden fixed inset-0 pt-20 pb-6 px-6 bg-background z-40 transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col space-y-4">
-          <MobileNavLink to="/" label="Home" />
-          <MobileNavLink to="/trade" label="Trade" />
-          <MobileNavLink to="/dashboard" label="Dashboard" />
-          
-          <div className="border-t border-border my-2 pt-2"></div>
-          
-          <MobileDropdownItem icon={<Shield className="h-5 w-5" />} label="Escrow System" />
-          <MobileDropdownItem icon={<User className="h-5 w-5" />} label="Arbitration" />
-          <MobileDropdownItem icon={<BarChart2 className="h-5 w-5" />} label="Analytics" />
-          
-          <div className="border-t border-border my-2 pt-2"></div>
-          
-          {isAuthenticated ? (
-            <>
-              <div className="flex items-center px-4 py-3">
-                <Avatar className="h-8 w-8 mr-3">
-                  <AvatarFallback className="bg-primary text-primary-foreground">{getUserInitial()}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">{user?.name}</div>
-                  <div className="text-xs text-muted-foreground">{user?.email}</div>
-                </div>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-8 ml-10">
+            <NavLink to="/" active={location.pathname === '/'}>
+              Home
+            </NavLink>
+            
+            {/* Show these links only when authenticated */}
+            {isAuthenticated && (
+              <>
+                <NavLink to="/dashboard" active={location.pathname === '/dashboard'}>
+                  Dashboard
+                </NavLink>
+                <NavLink to="/trade" active={location.pathname === '/trade'}>
+                  Trade
+                </NavLink>
+              </>
+            )}
+          </div>
+
+          {/* Right Side Menu */}
+          <div className="hidden md:flex md:items-center md:space-x-6 ml-auto">
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-6">
+                {/* Notifications */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative">
+                      <Bell className="h-5 w-5" />
+                      <span className="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="text-base">Notifications</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-base">
+                      No new notifications
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* User Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                      <Avatar className="h-9 w-9">
+                        <AvatarFallback className="text-base">{getUserInitial()}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="text-base">My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <Link to="/dashboard">
+                      <DropdownItem icon={<BarChart2 className="h-5 w-5" />} label="Dashboard" />
+                    </Link>
+                    <Link to="/wallet">
+                      <DropdownItem icon={<Wallet className="h-5 w-5" />} label="Wallet" />
+                    </Link>
+                    <Link to="/settings">
+                      <DropdownItem icon={<Settings className="h-5 w-5" />} label="Settings" />
+                    </Link>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-500 text-base">
+                      <LogOut className="h-5 w-5 mr-2" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-              
-              <MobileNavLink to="/settings" label="Settings" />
-              
-              <Button 
-                variant="outline" 
-                className="w-full justify-center mt-2" 
-                onClick={handleLogout}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Log Out
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" className="w-full justify-center" onClick={handleSignIn}>
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-              </Button>
-              
-              <Button className="w-full justify-center animate-pulse-soft" onClick={handleGetStarted}>
-                Get Started
-              </Button>
-            </>
-          )}
+            ) : (
+              <div className="flex items-center space-x-6">
+                <Button variant="ghost" onClick={handleSignIn} className="text-base">
+                  <LogIn className="h-5 w-5 mr-2" />
+                  Sign In
+                </Button>
+                <Button onClick={handleGetStarted} className="text-base">
+                  Get Started
+                </Button>
+              </div>
+            )}
+
+            {/* Dark Mode Toggle */}
+            <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+              {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="flex md:hidden ml-auto">
+            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden py-4">
+            <div className="flex flex-col space-y-4">
+              <MobileNavLink to="/" label="Home" />
+              {isAuthenticated && (
+                <>
+                  <MobileNavLink to="/dashboard" label="Dashboard" />
+                  <MobileNavLink to="/trade" label="Trade" />
+                </>
+              )}
+              
+              <div className="pt-4 border-t">
+                {isAuthenticated ? (
+                  <>
+                    <div className="flex items-center space-x-4 mb-4">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>{getUserInitial()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{user?.username}</p>
+                        <p className="text-sm text-muted-foreground">{user?.email}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Link to="/dashboard">
+                        <MobileDropdownItem icon={<BarChart2 className="h-4 w-4" />} label="Dashboard" />
+                      </Link>
+                      <Link to="/wallet">
+                        <MobileDropdownItem icon={<Wallet className="h-4 w-4" />} label="Wallet" />
+                      </Link>
+                      <Link to="/settings">
+                        <MobileDropdownItem icon={<Settings className="h-4 w-4" />} label="Settings" />
+                      </Link>
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-red-500"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Log out</span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <Button variant="outline" className="w-full" onClick={handleSignIn}>
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Button>
+                    <Button className="w-full" onClick={handleGetStarted}>
+                      Get Started
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
 };
 
-// Desktop Nav Link Component
+// Helper Components
 const NavLink = ({ 
   to, 
   active, 
@@ -254,17 +262,14 @@ const NavLink = ({
 }) => (
   <Link
     to={to}
-    className={`px-4 py-2 rounded-lg transition-colors ${
-      active 
-        ? 'text-foreground bg-secondary' 
-        : 'text-foreground/80 hover:text-foreground hover:bg-secondary/60'
+    className={`text-base font-medium transition-colors hover:text-primary ${
+      active ? 'text-primary' : 'text-muted-foreground'
     }`}
   >
     {children}
   </Link>
 );
 
-// Desktop Dropdown Item Component
 const DropdownItem = ({ 
   icon, 
   label 
@@ -272,16 +277,14 @@ const DropdownItem = ({
   icon: React.ReactNode; 
   label: string;
 }) => (
-  <Link
-    to="#"
-    className="flex items-center px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-  >
-    <span className="mr-2 text-muted-foreground">{icon}</span>
-    {label}
-  </Link>
+  <DropdownMenuItem>
+    <span className="flex items-center">
+      {icon}
+      <span className="ml-2">{label}</span>
+    </span>
+  </DropdownMenuItem>
 );
 
-// Mobile Nav Link Component
 const MobileNavLink = ({ 
   to, 
   label 
@@ -291,13 +294,12 @@ const MobileNavLink = ({
 }) => (
   <Link
     to={to}
-    className="px-4 py-3 rounded-lg hover:bg-secondary transition-colors text-lg font-medium"
+    className="block px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary"
   >
     {label}
   </Link>
 );
 
-// Mobile Dropdown Item Component
 const MobileDropdownItem = ({ 
   icon, 
   label 
@@ -305,13 +307,10 @@ const MobileDropdownItem = ({
   icon: React.ReactNode; 
   label: string;
 }) => (
-  <Link
-    to="#"
-    className="flex items-center px-4 py-3 rounded-lg hover:bg-secondary transition-colors"
-  >
-    <span className="mr-3 text-primary">{icon}</span>
-    <span className="text-lg">{label}</span>
-  </Link>
+  <button className="w-full flex items-center space-x-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary">
+    {icon}
+    <span>{label}</span>
+  </button>
 );
 
 export default Navbar;
