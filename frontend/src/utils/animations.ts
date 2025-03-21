@@ -1,23 +1,43 @@
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 // Fade-in animation for elements as they enter viewport
-export const useFadeIn = (delay: number = 0) => {
-  const [isVisible, setIsVisible] = useState(false);
-  
+export const useFadeIn = (delay = 0) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [style, setStyle] = useState<React.CSSProperties>({
+    opacity: 0,
+    transform: 'translateY(20px)',
+  });
+
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsVisible(true);
-    }, delay);
-    
-    return () => clearTimeout(timeout);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const timeoutId = setTimeout(() => {
+            setStyle({
+              opacity: 1,
+              transform: 'translateY(0)',
+              transition: 'opacity 0.5s ease, transform 0.5s ease',
+            });
+          }, delay);
+          observer.unobserve(entry.target);
+          return () => clearTimeout(timeoutId);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
   }, [delay]);
-  
-  return {
-    opacity: isVisible ? 1 : 0,
-    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-    transition: `opacity 0.6s ease-out ${delay}ms, transform 0.6s ease-out ${delay}ms`,
-  };
+
+  return { ref, style };
 };
 
 // Staggered animation for lists of items

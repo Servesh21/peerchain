@@ -14,8 +14,9 @@ api.interceptors.response.use(
   (error) => {
     // Handle session expiration
     if (error.response?.status === 401) {
-      // You can dispatch an action to clear the auth state if needed
+      // Clear any stored auth state
+      localStorage.removeItem('user');
     }
-    return Promise.reject(error);
+    return Promise.reject(error.response?.data || error);
   }
 ); 

@@ -41,6 +41,7 @@ const SignIn = () => {
   const navigate = useNavigate();
   const { login, register, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [isConnecting, setIsConnecting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -49,8 +50,56 @@ const SignIn = () => {
   const [walletAddress, setWalletAddress] = useState('');
 
   // Animation
-  const { ref, style } = useFadeIn();
+  const fadeIn = useFadeIn();
+    // Check if MetaMask is installed
+    const isMetaMaskInstalled =
+    typeof window.ethereum !== "undefined" && window.ethereum.isMetaMask;
 
+  // Connect to MetaMask
+  const connectMetaMask = async () => {
+    if (!isMetaMaskInstalled) {
+      toast({
+        title: "MetaMask not found",
+        description: "Please install MetaMask to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      // Request account access
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const address = accounts[0];
+      setWalletAddress(address);
+
+      // Listen for account changes
+      window.ethereum.on("accountsChanged", (accounts: string[]) => {
+        if (accounts.length === 0) {
+          setWalletAddress(null);
+        } else {
+          setWalletAddress(accounts[0]);
+        }
+      });
+
+      toast({
+        title: "Wallet Connected",
+        description: `Connected to ${address.slice(0, 6)}...${address.slice(
+          -4
+        )}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Connection Error",
+        description: error.message || "Failed to connect to MetaMask",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -90,25 +139,24 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container max-w-md mx-auto pt-20 px-4" ref={ref} style={style}>
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            className="mb-4"
-            onClick={() => navigate("/")}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Button>
-          <h1 className="text-3xl font-bold mb-2">
-            {activeTab === 'login' ? 'Welcome Back' : 'Create Account'}
-          </h1>
-          <p className="text-muted-foreground">
-            {activeTab === 'login'
-              ? 'Sign in to access your account and portfolio.'
-              : 'Join thousands of traders on our secure platform.'}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+      <div 
+        ref={fadeIn.ref}
+        style={fadeIn.style}
+        className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700"
+      >
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+            {activeTab === 'login' ? 'Sign in to your account' : 'Create your account'}
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-400">
+            {activeTab === 'login' ? "Don't have an account?" : "Already have an account?"}{' '}
+            <button
+              onClick={() => setActiveTab(activeTab === 'login' ? 'register' : 'login')}
+              className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+            >
+              {activeTab === 'login' ? 'Sign up' : 'Sign in'}
+            </button>
           </p>
         </div>
 
@@ -189,7 +237,31 @@ const SignIn = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              
             </div>
+            <div className="space-y-2" >
+                      <Label className="text-left block">Connect Wallet</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={connectMetaMask}
+                        disabled={isConnecting}
+                      >
+                        <Wallet className="mr-2 h-4 w-4" />
+                        {isConnecting
+                          ? "Connecting..."
+                          : walletAddress
+                          ? `Connected: ${walletAddress.slice(
+                              0,
+                              6
+                            )}...${walletAddress.slice(-4)}`
+                          : "Connect MetaMask"}
+                      </Button>
+                    </div>
+
+                 
+
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
