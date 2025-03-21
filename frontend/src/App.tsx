@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import Trade from "./pages/Trade";
 import SignIn from "./pages/SignIn";
 import NotFound from "./pages/NotFound";
+import { Pyramid } from "lucide-react";
+import Payment from "./pages/payment";
 
 const queryClient = new QueryClient();
 
@@ -33,8 +35,10 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/trade" element={<Trade />} />
               <Route path="/signin" element={<SignIn />} />
+              <Route path="/payment" element={<Payment/>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
+              
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
