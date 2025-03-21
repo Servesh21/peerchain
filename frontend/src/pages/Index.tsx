@@ -7,7 +7,7 @@ import EscrowSection from '@/components/EscrowSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
-
+import PriceChart from '@/components/ui/PriceChart';
 const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
@@ -39,7 +39,7 @@ const Index = () => {
         
         {/* Features Section */}
         <FeatureSection onGetStarted={() => openAuthModal('register')} />
-        
+        <PriceChart />
         {/* Escrow Explainer Section */}
         <EscrowSection />
         
